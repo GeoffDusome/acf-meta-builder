@@ -35,7 +35,7 @@ function recursiveAddKeysToSubFields(subFieldsArray) {
 
 module.exports.createMeta = function ( excludes ) {
     var acfMetaArray = {};
-    findInFiles.find( { 'term': 'acf_meta', 'flags': 'ig' }, '.', '.php$' )
+    findInFiles.find( { 'term': 'acfmb', 'flags': 'ig' }, '.', '.php$' )
         .then( function( files ) {
             var newGroupFlag = '';
             var newFileFlag = '';
@@ -46,11 +46,11 @@ module.exports.createMeta = function ( excludes ) {
 
                 if ( ! excludes.includes(file) ) {
                     var contents = fs.readFileSync(file, 'utf8');
-                    var rows = contents.match(/acf_meta(.*);/gi);
+                    var rows = contents.match(/acfmb(.*);/gi);
 
                     for ( var i = 0; i < rows.length; i++ ) {
                         try {
-                            var explodeString = rows[i].replace(/acf_meta\('/gi, '').replace(/'\);/gi, '');
+                            var explodeString = rows[i].replace(/acfmb\('/gi, '').replace(/'\);/gi, '');
                             var stringArray = explodeString.split('\', \'', 4);
 
                             // create variables
