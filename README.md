@@ -16,8 +16,14 @@ In order to use this gulp task, please include `@geoffdusome/acf-meta-builder` a
 2. Create the task:  
 ```
 gulp.task('buildMeta', function( done ) {
-	metaBuilder.createMeta(['functions.php', 'header.php', 'footer.php']);
-	done();
+	metaBuilder.createMeta(['functions.php', 'header.php', 'footer.php'])
+		.then(function(result) {
+			console.log(result);
+			done();
+		}, function(err) {
+			console.log(err);
+			done();
+		});
 });
 ```  
 3. Watch files for changes: `gulp.watch(['*.php'], gulp.series('buildMeta'));`  

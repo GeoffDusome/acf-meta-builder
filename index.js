@@ -1,4 +1,3 @@
-const { series } = require('gulp');
 const findInFiles = require('find-in-files');
 const fs = require('fs');
 
@@ -35,21 +34,22 @@ function recursiveAddKeysToSubFields(subFieldsArray) {
 
 module.exports.createMeta = function ( excludes ) {
     var acfMetaArray = {};
-    findInFiles.find( { 'term': 'acfmb', 'flags': 'ig' }, '.', '.php$' )
-        .then( function( files ) {
-            var newGroupFlag = '';
-            var newFileFlag = '';
-            var groupCounter = 0;
 
-            for ( var file in files ) {
-                var fileSlug = slugify(file);
+    return new Promise( function( resolve, reject ) {
+        findInFiles.find( { 'term': 'acfmb', 'flags': 'ig' }, '.', '.php$' )
+            .then( function( files ) {
+                var newGroupFlag = '';
+                var newFileFlag = '';
+                var groupCounter = 0;
 
-                if ( ! excludes.includes(file) ) {
-                    var contents = fs.readFileSync(file, 'utf8');
-                    var rows = contents.match(/acfmb(.*);/gi);
+                for ( var file in files ) {
+                    var fileSlug = slugify(file);
 
-                    for ( var i = 0; i < rows.length; i++ ) {
-                        try {
+                    if ( ! excludes.includes(file) ) {
+                        var contents = fs.readFileSync(file, 'utf8');
+                        var rows = contents.match(/acfmb(.*);/gi);
+
+                        for ( var i = 0; i < rows.length; i++ ) {
                             var explodeString = rows[i].replace(/acfmb\('/gi, '').replace(/'\);/gi, '');
                             var stringArray = explodeString.split('\', \'', 4);
 
@@ -61,7 +61,12 @@ module.exports.createMeta = function ( excludes ) {
                             var fieldGroupSlug = slugify(fieldGroup);
                             var fieldExtras = '';
                             if ( typeof stringArray[3] !== 'undefined' ) {
-                                fieldExtras = JSON.parse(stringArray[3]);
+                                try {
+                                    fieldExtras = JSON.parse(stringArray[3]);
+                                }
+                                catch(err) {
+                                    reject('There was an issue parsing your field extras JSON: ' + err);
+                                }
                             }
 
                             var fieldGroupUnique = fieldGroupSlug + '_' + fileSlug;
@@ -224,24 +229,22 @@ module.exports.createMeta = function ( excludes ) {
                             // Set flag to check for a new page
                             newFileFlag = fileSlug;
                         }
-                        catch ( err ) {
-                            return console.log('An error occured while running the meta builder: ' + err);
-                        }
                     }
                 }
-            }
 
-            // create the directory if it doesn't exist    
-            if ( ! fs.existsSync('./acf-json') ) {
-                fs.mkdirSync('./acf-json');
-            }
-            // write to file
-            fs.writeFile('acf-json/acf-meta.json', JSON.stringify(acfMetaArray), {'encoding': 'utf8', 'flag': 'w'}, function(err) {
-                if ( err ) {
-                    return console.log('An error occured while writing JSON Object to File: ' + err);
+                // create the directory if it doesn't exist    
+                if ( ! fs.existsSync('./acf-json') ) {
+                    fs.mkdirSync('./acf-json');
                 }
 
-                return console.log('Wrote meta to file (acf-json/acf-meta.json).');
+                // write to file
+                fs.writeFile('acf-json/acf-meta.json', JSON.stringify(acfMetaArray), {'encoding': 'utf8', 'flag': 'w'}, function(err) {
+                    if ( err ) {
+                        reject('An error occured while writing JSON Object to File: ' + err);
+                    }
+
+                    resolve('Wrote meta to file (acf-json/acf-meta.json).');
+                });
             });
-        });
+    });
 }
