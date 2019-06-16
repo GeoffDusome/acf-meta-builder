@@ -231,8 +231,12 @@ module.exports.createMeta = function ( excludes ) {
                 }
             }
 
+            // create the directory if it doesn't exist    
+            if ( ! fs.existsSync('./acf-json') ) {
+                fs.mkdirSync('./acf-json');
+            }
             // write to file
-            fs.writeFile('acf-json/acf-meta.json', JSON.stringify(acfMetaArray), 'utf8', function(err) {
+            fs.writeFile('acf-json/acf-meta.json', JSON.stringify(acfMetaArray), {'encoding': 'utf8', 'flag': 'w'}, function(err) {
                 if ( err ) {
                     return console.log('An error occured while writing JSON Object to File: ' + err);
                 }
