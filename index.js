@@ -47,7 +47,7 @@ module.exports.createMeta = function ( excludes ) {
 
                     if ( ! excludes.includes(file) ) {
                         var contents = fs.readFileSync(file, 'utf8');
-                        var rows = contents.match(/acfmb(.*);/gi);
+                        var rows = contents.match(/acfmb\(.*\);/gi);
 
                         for ( var i = 0; i < rows.length; i++ ) {
                             var explodeString = rows[i].replace(/acfmb\('/gi, '').replace(/'\);/gi, '');
