@@ -61,7 +61,7 @@ The `acfmb` function has the follow parameters:
 
 ### Complex Example
 
-With the builder, there is never any need to create a key for your fields, all keys are generated on every save. This does mean that the keys change with every save. Which usually means that you must manually pull repeater meta from `get_post_meta`. You can continually nest repeaters and etc with as many options as you want with this method. 
+With the builder, there is never any need to create a key for your fields, all keys are generated on save. You can continually nest repeaters and etc with as many options as you want with this method. 
 
 ```
 <?php acfmb('repeater', 'Years', 'Calendar', '{"layout": "block", "sub_fields": [{"type": "text", "name": "year", "label": "Year"}, {"type": "repeater", "name": "months", "label": "Months", "layout": "block", "sub_fields": [{"type": "text", "name": "month", "label": "Month"}]}]}'); ?>

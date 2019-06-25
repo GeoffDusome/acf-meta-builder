@@ -3,26 +3,16 @@ const fs = require('fs');
 
 function slugify(text) {
     return text.toString().toLowerCase()
-        .replace(/\s+/g, '-')
+        .replace(/\s+/g, '_')
         .replace(/[^\w\-]+/g, '')
-        .replace(/\-\-+/g, '-')
+        .replace(/\-\-+/g, '_')
         .replace(/^-+/, '')
         .replace(/-+$/, '');
 }
 
-function generateACFKey() {
-    var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    var key = '';
-    var max = characters.length - 1;
-    for ( var i = 0; i < 13; i++ ) {
-        key += characters[Math.floor(Math.random() * Math.floor(max))];
-    }
-    return key;
-}
-
 function recursiveAddKeysToSubFields(subFieldsArray) {
     for ( var i = 0; i < subFieldsArray.length; i++ ) {
-        subFieldsArray[i].key = 'field_' + generateACFKey();
+        subFieldsArray[i].key = 'field_' + subFieldsArray[i].type + '_' + subFieldsArray[i].name;
 
         if ( typeof subFieldsArray[i].sub_fields !== 'undefined' ) {
             subFieldsArray[i].sub_fields = recursiveAddKeysToSubFields(subFieldsArray[i].sub_fields);
@@ -81,20 +71,17 @@ module.exports.createMeta = function ( excludes ) {
                                 // Group counter increase
                                 groupCounter++;
 
-                                var fieldKey = generateACFKey();
-                                var fieldGroupKey = generateACFKey();
-
                                 acfMetaArray[fieldGroupUnique] = {
-                                    'key': 'group_' + fieldGroupKey,
+                                    'key': 'group_' + fieldGroupSlug,
                                     'title': fieldGroup,
                                     'menu_order': groupCounter,
                                     'fields': [
                                         {
-                                            'key': 'field_' + fieldKey,
+                                            'key': 'field_' + fieldType + '_' + fieldSlug,
                                             'label': fieldName,
                                             'name': fieldSlug,
                                             'type': fieldType,
-                                            'parent': 'group_' + fieldGroupKey
+                                            'parent': 'group_' + fieldGroupSlug
                                         }
                                     ],
                                 };
@@ -196,17 +183,13 @@ module.exports.createMeta = function ( excludes ) {
                                 }
                             }
                             else {
-                                // Generate a new field ACF key
-                                // We only generate a new field key here as we aren't generating a new group
-                                var fieldKey = generateACFKey();
-
                                 // Add field to existing array.
                                 acfMetaArray[fieldGroupUnique]['fields'].push({
-                                    'key': 'field_' + fieldKey,
+                                    'key': 'field_' + fieldType + '_' + fieldSlug,
                                     'label': fieldName,
                                     'name': fieldSlug,
                                     'type': fieldType,
-                                    'parent': 'group_' + fieldGroupKey
+                                    'parent': 'group_' + fieldGroupSlug
                                 });
                                 
                                 // Merge the field extras with the main field options
