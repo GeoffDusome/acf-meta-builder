@@ -1,7 +1,7 @@
 {
 	"name": "@geoffdusome/acf-meta-builder",
 	"description": "A gulp task to create ACF json files by reading your project files and parsing out function calls.",
-	"version": "2.4.0",
+	"version": "2.4.1",
 	"dependencies": {
 		"find-in-files": "*",
 		"file-system": "*"
