@@ -4,10 +4,11 @@ const fs = require('fs');
 function slugify(text) {
     return text.toString().toLowerCase()
         .replace(/\s+/g, '_')
-        .replace(/[^\w\-]+/g, '')
+        .replace(/[^\w\-]+/g, '_')
         .replace(/\-\-+/g, '_')
-        .replace(/^-+/, '')
-        .replace(/-+$/, '');
+        .replace(/^-+/, '_')
+        .replace(/-+$/, '_')
+        .replace(/-/g, '_');
 }
 
 function recursiveAddKeysToSubFields(subFieldsArray) {
@@ -45,10 +46,11 @@ module.exports.createMeta = function ( excludes ) {
 
                             // create variables
                             var fieldType = stringArray[0];
+                            var fieldTypeSlug = slugify(stringArray[0]);
                             var fieldName = stringArray[1];
                             var fieldSlug = slugify(fieldName);
                             var fieldGroup = stringArray[2];
-                            var fieldGroupSlug = slugify(fieldGroup);
+                            var fieldGroupSlug = fileSlug + '_' + slugify(fieldGroup);
                             var fieldExtras = '';
                             if ( typeof stringArray[3] !== 'undefined' ) {
                                 try {
