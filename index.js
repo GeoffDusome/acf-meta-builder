@@ -23,6 +23,30 @@ function recursiveAddKeysToSubFields(subFieldsArray) {
     return subFieldsArray;
 }
 
+function recursiveAddKeysToLayoutSubFields(subFieldsArray, layoutName) {
+    for ( var i = 0; i < subFieldsArray.length; i++ ) {
+        subFieldsArray[i].key = 'field_' + layoutName + '_' + subFieldsArray[i].type + '_' + subFieldsArray[i].name;
+
+        if ( typeof subFieldsArray[i].sub_fields !== 'undefined' ) {
+            subFieldsArray[i].sub_fields = recursiveAddKeysToLayoutSubFields(subFieldsArray[i].sub_fields, layoutName);
+        }
+    }
+
+    return subFieldsArray;
+}
+
+function recursiveAddKeysToLayouts(subFieldsArray) {
+    for ( var i = 0; i < subFieldsArray.length; i++ ) {
+        subFieldsArray[i].key = 'layout_' + subFieldsArray[i].name;
+
+        if ( typeof subFieldsArray[i].sub_fields !== 'undefined' ) {
+            subFieldsArray[i].sub_fields = recursiveAddKeysToLayoutSubFields(subFieldsArray[i].sub_fields, subFieldsArray[i].name);
+        }
+    }
+
+    return subFieldsArray;
+}
+
 module.exports.createMeta = function ( excludes ) {
     var acfMetaArray = {};
 
@@ -60,6 +84,15 @@ module.exports.createMeta = function ( excludes ) {
                                     reject('There was an issue parsing your field extras JSON: ' + err);
                                 }
                             }
+                            var fieldGroupExtras = '';
+                            if ( typeof stringArray[4] !== 'undefined' ) {
+                                try {
+                                    fieldGroupExtras = JSON.parse(stringArray[4]);
+                                }
+                                catch(err) {
+                                    reject('There was an issue parsing your field extras JSON: ' + err);
+                                }
+                            }
 
                             var fieldGroupUnique = fieldGroupSlug + '_' + fileSlug;
 
@@ -79,7 +112,7 @@ module.exports.createMeta = function ( excludes ) {
                                     'menu_order': groupCounter,
                                     'fields': [
                                         {
-                                            'key': 'field_' + fieldType + '_' + fieldSlug,
+                                            'key': 'field_' + fileSlug + '_' + fieldTypeSlug + '_' + fieldSlug,
                                             'label': fieldName,
                                             'name': fieldSlug,
                                             'type': fieldType,
@@ -87,6 +120,13 @@ module.exports.createMeta = function ( excludes ) {
                                         }
                                     ],
                                 };
+
+                                // Merge the field group extras with the main group options
+                                if ( fieldGroupExtras !== '' ) {
+                                    for ( var key of Object.keys(fieldGroupExtras) ) {
+                                        tbxMetaArray[fieldGroupUnique][key] = fieldGroupExtras[key];
+                                    }
+                                }
 
                                 // Merge the field extras with the main field options
                                 if ( fieldExtras !== '' ) {
@@ -101,8 +141,28 @@ module.exports.createMeta = function ( excludes ) {
                                 }
 
                                 // Setup location field
+                                // check if we are on an options page
+                                if ( file.indexOf('option-pages') !== -1 )
+                                {
+                                    // need to get the name of the file without the ".php"
+                                    // fileArr[1] = filename with extension
+                                    var fileArr = file.split('/');
+                                    // fileNameArr[0] = filename
+                                    var fileNameArr = fileArr[1].split('.');
+
+                                    // set post type location
+                                    tbxMetaArray[fieldGroupUnique]['location'] = [
+                                        [
+                                            {
+                                                'param': 'options_page',
+                                                'operator': '==',
+                                                'value': fileNameArr[0]
+                                            }
+                                        ]
+                                    ];
+                                }
                                 // Check if it's a page!
-                                if ( file.indexOf('page') !== -1 ) {
+                                else if ( file.indexOf('page') !== -1 ) {
                                     if ( file == 'page.php' ) {
                                         acfMetaArray[fieldGroupUnique]['location'] = [
                                             [
@@ -187,7 +247,7 @@ module.exports.createMeta = function ( excludes ) {
                             else {
                                 // Add field to existing array.
                                 acfMetaArray[fieldGroupUnique]['fields'].push({
-                                    'key': 'field_' + fieldType + '_' + fieldSlug,
+                                    'key': 'field_' + fileSlug + '_' + fieldTypeSlug + '_' + fieldSlug,
                                     'label': fieldName,
                                     'name': fieldSlug,
                                     'type': fieldType,
