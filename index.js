@@ -134,6 +134,8 @@ module.exports.createMeta = function ( excludes ) {
                                         // check for sub fields and generate key for each sub field
                                         if ( key === 'sub_fields' ) {
                                             recursiveAddKeysToSubFields(fieldExtras.sub_fields);
+                                        } else if ( key === 'layouts' ) {
+                                            recursiveAddKeysToLayouts(fieldExtras.layouts);
                                         }
 
                                         acfMetaArray[fieldGroupUnique]['fields'][0][key] = fieldExtras[key];
@@ -151,12 +153,31 @@ module.exports.createMeta = function ( excludes ) {
                                     var fileNameArr = fileArr[1].split('.');
 
                                     // set post type location
-                                    tbxMetaArray[fieldGroupUnique]['location'] = [
+                                    acfMetaArray[fieldGroupUnique]['location'] = [
                                         [
                                             {
                                                 'param': 'options_page',
                                                 'operator': '==',
                                                 'value': fileNameArr[0]
+                                            }
+                                        ]
+                                    ];
+                                }
+                                // check if we are working on blocks
+                                else if ( file.indexOf('blocks') !== -1 ) {
+                                    // need to get the name of the file without the ".php"
+                                    // fileArr[1] = filename with extension
+                                    var fileArr = file.split('/');
+                                    // fileNameArr[0] = filename
+                                    var fileNameArr = fileArr[1].split('.');
+
+                                    // set post type location
+                                    acfMetaArray[fieldGroupUnique]['location'] = [
+                                        [
+                                            {
+                                                'param': 'block',
+                                                'operator': '==',
+                                                'value': 'acf\/'+fileNameArr[0]
                                             }
                                         ]
                                     ];

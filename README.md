@@ -42,6 +42,8 @@ Please note that the "location" of the meta is based off of the file name. I hav
 `archive.php`: `post_type` = `post`  
 `single-{post-type}.php`: `post_type` = `{post-type}`  
 `archive-{post-type}.php`: `post_type` = `{post-type}`  
+`option-pages/{option-page-name}.php`: `options_page` = `{option-page-name}`
+`blocks/{block-name}.php`: `block` = `acf/{block-name}`
 
 The builder does respect multi-level meta, it just involved a more complex function call, please see below.
 
